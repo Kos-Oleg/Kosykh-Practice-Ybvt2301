@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+import shutil
+import os
+import datetime
+import logging
+
+SOURCE_DIRS = ['/var/www', '/etc/mysql', '/etc/bind', '/srv/samba/shared']
+BACKUP_DIR = '/backup'
+LOG_FILE = '/var/log/backup.log'
+RETENTION_DAYS = 30
+
+def setup_logging():
+    logging.basicConfig(
+        filename=LOG_FILE,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+def create_backup():
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_path = os.path.join(BACKUP_DIR, f'backup_{timestamp}')
+    os.makedirs(backup_path, exist_ok=True)
+    for src_dir in SOURCE_DIRS:
+        if os.path.exists(src_dir):
+            dest_dir = os.path.join(backup_path, os.path.basename(src_dir))
+            shutil.copytree(src_dir, dest_dir)
+            logging.info(f"Created backup: {src_dir} -> {dest_dir}")
+        else:
+            logging.warning(f"Directory does not exist: {src_dir}")
+    return backup_path
+
+if __name__ == '__main__':
+    setup_logging()
+    try:
+        backup_path = create_backup()
+        logging.info(f"Backup completed: {backup_path}")
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
