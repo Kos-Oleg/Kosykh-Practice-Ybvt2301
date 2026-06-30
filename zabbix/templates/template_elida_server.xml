@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix-export>
+    <version>6.0</version>
+    <templates>
+        <template>
+            <template>Template ELIDA Server</template>
+            <name>Template ELIDA Server</name>
+            <groups>
+                <group><name>Templates/Operating Systems</name></group>
+            </groups>
+            <items>
+                <item>
+                    <name>CPU Utilization</name>
+                    <key>system.cpu.util[all]</key>
+                    <delay>60</delay>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <triggers>
+                        <trigger>
+                            <name>CPU utilization is too high ({ITEM.VALUE}%)</name>
+                            <expression>{Template ELIDA Server:system.cpu.util[all].avg(5m)}>80</expression>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Disk Free Space</name>
+                    <key>vfs.fs.size[/,free]</key>
+                    <delay>300</delay>
+                    <value_type>NUMERIC</value_type>
+                    <units>B</units>
+                    <triggers>
+                        <trigger>
+                            <name>Low disk space ({ITEM.VALUE})</name>
+                            <expression>{Template ELIDA Server:vfs.fs.size[/,free].last()}<1000000000</expression>
+                            <priority>HIGH</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+        </template>
+    </templates>
+</zabbix-export>
